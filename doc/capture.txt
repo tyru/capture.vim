@@ -1,0 +1,55 @@
+*capture.txt* *capture* Show Ex command output in buffer
+
+Author:
+  tyru <tyru.exe@gmail.com>
+Version: 0.0.0
+License: Distributable under the same terms as Vim itself (see :help license)
+
+==============================================================================
+CONTENTS						*capture-contents*
+
+Introduction		|capture-introduction|
+Interface			|capture-interface|
+  Variables			|capture-variables|
+  Commands			|capture-commands|
+Changelog			|capture-changelog|
+
+
+==============================================================================
+INTRODUCTION						*capture-introduction* {{{
+
+Capture Ex command output and show the result in buffer.
+You can use this like the followings: >
+	:Capture mes
+	:Capture scriptnames
+	:Capture echo globpath(&rtp, 'doc/*.txt')
+
+}}}
+==============================================================================
+INTERFACE				*capture-interface* {{{
+------------------------------------------------------------------------------
+VARIABLES					*capture-variables* {{{
+
+g:capture_open_command		*g:capture_open_command*
+						(Default: "belowright new")
+	Ex command to open a new buffer.
+
+}}}
+------------------------------------------------------------------------------
+COMMANDS					*capture-commands* {{{
+
+:Capture {excmd}		*:Capture*
+	Execute {excmd} and show its output in
+	a new buffer.
+
+}}}
+}}}
+==============================================================================
+CHANGELOG						*capture-changelog* {{{
+
+0.0.0:
+- Initial upload
+
+}}}
+==============================================================================
+vim:tw=78:fo=tcq2mM:ts=4:ft=help:norl:noet:fdm=marker:fen
