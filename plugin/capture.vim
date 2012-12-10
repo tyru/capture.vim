@@ -17,10 +17,15 @@ let g:capture_open_command = get(g:, 'capture_open_command', 'belowright new')
 
 
 function! s:cmd_capture(q_args) "{{{
-    redir => output
-    silent execute a:q_args
-    redir END
-    let output = substitute(output, '^\n\+', '', '')
+    if a:q_args =~# '^[ :]*!'
+        let args   = substitute(a:q_args, '^[ :]*!', '', '')
+        let output = system(args)
+    else
+        redir => output
+        silent execute a:q_args
+        redir END
+        let output = substitute(output, '^\n\+', '', '')
+    endif
 
     silent execute g:capture_open_command
 
