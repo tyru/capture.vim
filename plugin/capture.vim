@@ -36,12 +36,11 @@ function! s:cmd_capture(q_args) "{{{
 endfunction "}}}
 
 function! s:create_unique_capture_bufname(q_args)
-    let fmt = '[Capture #%d: "'.a:q_args.'"]'
     let i = 0
-    let bufname = printf(fmt, i)
+    let bufname = '[Capture #'.i.': "'.a:q_args.'"]'
     while bufexists(bufname)
         let i += 1
-        let bufname = printf(fmt, i)
+        let bufname = '[Capture #'.i.': "'.a:q_args.'"]'
     endwhile
     return bufname
 endfunction
