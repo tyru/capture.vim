@@ -13,6 +13,7 @@ set cpo&vim
 " }}}
 
 
+let s:is_mswin = has('win16') || has('win95') || has('win32') || has('win64')
 let g:capture_open_command = get(g:, 'capture_open_command', 'belowright new')
 
 
@@ -37,10 +38,17 @@ endfunction "}}}
 
 function! s:create_unique_capture_bufname(q_args)
     let i = 0
-    let bufname = '[Capture #'.i.': "'.a:q_args.'"]'
+    let q_args = a:q_args
+
+    " Get rid of invalid characters of buffer name on MS Windows.
+    if s:is_mswin
+        let q_args = substitute(q_args, '[?*\\]', '_', 'g')
+    endif
+    " Generate a unique buffer name.
+    let bufname = '[Capture #'.i.': "'.q_args.'"]'
     while bufexists(bufname)
         let i += 1
-        let bufname = '[Capture #'.i.': "'.a:q_args.'"]'
+        let bufname = '[Capture #'.i.': "'.q_args.'"]'
     endwhile
     return bufname
 endfunction
