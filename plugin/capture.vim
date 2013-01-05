@@ -47,8 +47,7 @@ function! s:cmd_capture(q_args, createbuf) "{{{
             let line = b:capture_commands[0].":"
             1put! =line
             " Rename buffer name.
-            let bufname = s:create_capture_append_bufname(b:capture_commands + [q_args])
-            silent file `=bufname.bufname`
+            call s:name_append_bufname(b:capture_commands + [q_args])
         endif
         " Append new output.
         let lines = ["", q_args.":"] + split(output, '\n')
@@ -82,24 +81,24 @@ function! s:create_capture_buffer(q_args)
     catch
         return
     endtry
-    let bufname = s:create_unique_capture_bufname(a:q_args)
-    let b:capture_bufnamenr = bufname.nr
-    silent file `=bufname.bufname`
+    call s:name_first_bufname(a:q_args)
     setlocal buftype=nofile bufhidden=unload noswapfile nobuflisted
     setfiletype capture
 endfunction
 
-function! s:create_unique_capture_bufname(q_args)
+function! s:name_first_bufname(q_args)
     " Get rid of invalid characters of buffer name on MS Windows.
     let q_args = a:q_args
     if s:is_mswin
         let q_args = substitute(q_args, '[?*\\]', '_', 'g')
     endif
     " Generate a unique buffer name.
-    return s:generate_unique_bufname(q_args)
+    let bufname = s:generate_unique_bufname(q_args)
+    let b:capture_bufnamenr = bufname.nr
+    silent file `=bufname.bufname`
 endfunction
 
-function! s:create_capture_append_bufname(commands)
+function! s:name_append_bufname(commands)
     let firstcmd = '^[a-zA-Z][a-zA-Z0-9_]\+\ze'
     let cmdlist = ''
     for cmd in a:commands[:1]
@@ -109,7 +108,9 @@ function! s:create_capture_append_bufname(commands)
     endfor
     let cmdlist .= ',...'
     " Generate a unique buffer name.
-    return s:generate_unique_bufname(cmdlist)
+    let bufname = s:generate_unique_bufname(cmdlist)
+    let b:capture_bufnamenr = bufname.nr
+    silent file `=bufname.bufname`
 endfunction
 
 function! s:generate_unique_bufname(string)
