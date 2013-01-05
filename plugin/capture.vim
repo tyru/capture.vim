@@ -18,7 +18,7 @@ let g:capture_open_command = get(g:, 'capture_open_command', 'belowright new')
 
 
 function! s:cmd_capture(q_args) "{{{
-    if a:q_args =~# '^[ :]*!'
+    if a:q_args =~# '^[\t :]*!'
         let args   = substitute(a:q_args, '^[ :]*!', '', '')
         let output = system(args)
     else
