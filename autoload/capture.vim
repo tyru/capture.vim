@@ -63,13 +63,9 @@ function! s:cmd_capture(q_args, createbuf)
         execute capture_winnr 'wincmd w'
         " Format existing buffer.
         if len(b:capture_commands) is 1
-            " NOTE:
-            " '1put! =b:capture_commands[0].":"'
-            " caused
-            " 'E15: Invalid expression: b:capture_commands[0].'
-            " on Vim version 7.3.729
-            let line = b:capture_commands[0].":"
-            1put! =line
+            " NOTE: ':put' doesn't ignore comment string ("),
+            " so don't use it in expression!
+            1put! =b:capture_commands[0].':'
             " Rename buffer name.
             call s:name_append_bufname(b:capture_commands + [q_args])
         endif
