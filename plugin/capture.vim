@@ -18,12 +18,17 @@ let g:capture_open_command = get(g:, 'capture_open_command', 'belowright new')
 
 
 function! s:cmd_capture(q_args) "{{{
-    if a:q_args =~# '^[\t :]*!'
-        let args   = substitute(a:q_args, '^[ :]*!', '', '')
+    " Get rid of cosmetic characters.
+    let q_args = a:q_args
+    let q_args = substitute(q_args, '^[\t :]+', '', '')
+    let q_args = substitute(q_args, '\s+$', '', '')
+
+    if q_args !=# '' && q_args[0] ==# '!'
+        let args   = substitute(q_args, '^[ :]*!', '', '')
         let output = system(args)
     else
         redir => output
-        silent execute a:q_args
+        silent execute q_args
         redir END
         let output = substitute(output, '^\n\+', '', '')
     endif
@@ -34,7 +39,7 @@ function! s:cmd_capture(q_args) "{{{
         return
     endtry
 
-    let bufname = s:create_unique_capture_bufname(a:q_args)
+    let bufname = s:create_unique_capture_bufname(q_args)
     silent file `=bufname`
     setlocal buftype=nofile bufhidden=unload noswapfile nobuflisted
     call setline(1, split(output, '\n'))
