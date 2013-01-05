@@ -38,9 +38,12 @@ g:capture_open_command		*g:capture_open_command*
 ------------------------------------------------------------------------------
 COMMANDS					*capture-commands* {{{
 
-:Capture {excmd}		*:Capture*
+:Capture[!] {excmd}		*:Capture*
 	Execute {excmd} and show its output in
 	a new buffer.
+	If "!" was given, always create a new buffer & window.
+	If "!" was not given and capture.vim window exists
+	in current tabpage, append to existing window's buffer.
 
 }}}
 }}}
