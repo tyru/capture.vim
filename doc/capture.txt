@@ -42,8 +42,11 @@ COMMANDS					*capture-commands* {{{
 	Execute {excmd} and show its output in
 	a new buffer.
 	If "!" was given, always create a new buffer & window.
-	If "!" was not given and capture.vim window exists
+	If "!" was not given and capture.vim window exists(*1)
 	in current tabpage, append to existing window's buffer.
+
+	*1: If multiple windows exist in current tabpage,
+	current window has higher priority than other windows.
 
 }}}
 }}}
