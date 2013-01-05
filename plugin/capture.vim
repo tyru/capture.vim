@@ -16,6 +16,19 @@ set cpo&vim
 let s:is_mswin = has('win16') || has('win95') || has('win32') || has('win64')
 let g:capture_open_command = get(g:, 'capture_open_command', 'belowright new')
 
+let s:running = 0
+
+function! s:cmd_capture_stub(...)
+    if s:running
+        throw 'capture: nested'
+    endif
+    try
+        let s:running = 1
+        return call('s:cmd_capture', a:000)
+    finally
+        let s:running = 0
+    endtry
+endfunction
 
 function! s:cmd_capture(q_args, createbuf) "{{{
     " Get rid of cosmetic characters.
@@ -27,9 +40,16 @@ function! s:cmd_capture(q_args, createbuf) "{{{
         let args   = substitute(q_args, '^[ :]*!', '', '')
         let output = system(args)
     else
-        redir => output
-        silent execute q_args
-        redir END
+        try
+            redir => output
+            silent execute q_args
+            redir END
+        catch /^capture: nested$/
+            echohl ErrorMsg
+            echomsg ':Capture cannot be nested due to Vim :redir limitation.'
+            echohl None
+            return
+        endtry
         let output = substitute(output, '^\n\+', '', '')
     endif
 
@@ -127,7 +147,7 @@ endfunction
 command!
 \   -nargs=+ -complete=command -bang
 \   Capture
-\   call s:cmd_capture(<q-args>, <bang>0)
+\   call s:cmd_capture_stub(<q-args>, <bang>0)
 
 
 " Restore 'cpoptions' {{{
