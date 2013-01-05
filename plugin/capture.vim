@@ -28,7 +28,11 @@ function! s:cmd_capture(q_args) "{{{
         let output = substitute(output, '^\n\+', '', '')
     endif
 
-    silent execute g:capture_open_command
+    try
+        silent execute g:capture_open_command
+    catch
+        return
+    endtry
 
     let bufname = s:create_unique_capture_bufname(a:q_args)
     silent file `=bufname`
