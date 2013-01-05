@@ -37,12 +37,13 @@ function! s:cmd_capture(q_args, createbuf)
         try
             redir => output
             silent execute q_args
-            redir END
         catch /^capture: nested$/
             echohl ErrorMsg
             echomsg ':Capture cannot be nested due to Vim :redir limitation.'
             echohl None
             return
+        finally
+            redir END
         endtry
         let output = substitute(output, '^\n\+', '', '')
     endif
