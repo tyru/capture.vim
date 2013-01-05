@@ -54,7 +54,11 @@ function! s:cmd_capture(q_args, createbuf) "{{{
         call setline(line('$') + 1, lines)
     else
         " Create new capture buffer & window.
-        call s:create_capture_buffer(q_args)
+        try
+            call s:create_capture_buffer(q_args)
+        catch
+            return
+        endtry
         " Set command output.
         call setline(1, split(output, '\n'))
     endif
@@ -76,11 +80,7 @@ function! s:get_capture_winnr()
 endfunction
 
 function! s:create_capture_buffer(q_args)
-    try
-        silent execute g:capture_open_command
-    catch
-        return
-    endtry
+    silent execute g:capture_open_command
     call s:name_first_bufname(a:q_args)
     setlocal buftype=nofile bufhidden=unload noswapfile nobuflisted
     setfiletype capture
