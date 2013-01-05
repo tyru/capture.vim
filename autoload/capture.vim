@@ -34,13 +34,22 @@ function! s:cmd_capture(q_args, createbuf)
         let args   = substitute(q_args, '^[ :]*!', '', '')
         let output = system(args)
     else
+        let throwpoint = 0
         try
+            let throwpoint = 1
             redir => output
+            let throwpoint = 2
             silent execute q_args
         catch /^capture: nested$/
-            echohl ErrorMsg
-            echomsg ':Capture cannot be nested due to Vim :redir limitation.'
-            echohl None
+            call s:error(':Capture cannot be nested due to Vim :redir limitation.')
+            return
+        catch
+            if throwpoint is 1
+                call s:error('capture: nested :redir cannot work')
+                redir END
+            else " if throwpoint is 2
+                call s:error("capture: '".q_args."' caused an error: ".v:exception)
+            endif
             return
         finally
             redir END
@@ -136,6 +145,15 @@ function! s:generate_unique_bufname(string)
         let bufname = '[Capture #'.nr.': "'.a:string.'"]'
     endwhile
     return {'nr': nr, 'bufname': bufname}
+endfunction
+
+function! s:error(msg)
+    try
+        echohl ErrorMsg
+        echomsg a:msg
+    finally
+        echohl None
+    endtry
 endfunction
 
 
