@@ -93,7 +93,7 @@ endfunction
 function! s:get_capture_winnr()
     " Current window has higher priority
     " than other windows.
-    for nr in [winnr('.')] + range(1, winnr('$'))
+    for nr in [winnr()] + range(1, winnr('$'))
         if getwinvar(nr, '&filetype') ==# 'capture'
             return nr
         endif
