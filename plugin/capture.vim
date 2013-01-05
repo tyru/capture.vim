@@ -30,7 +30,7 @@ function! s:cmd_capture_stub(...)
     endtry
 endfunction
 
-function! s:cmd_capture(q_args, createbuf) "{{{
+function! s:cmd_capture(q_args, createbuf)
     " Get rid of cosmetic characters.
     let q_args = a:q_args
     let q_args = substitute(q_args, '^[\t :]+', '', '')
@@ -88,7 +88,7 @@ function! s:cmd_capture(q_args, createbuf) "{{{
     else
         let b:capture_commands = [q_args]
     endif
-endfunction "}}}
+endfunction
 
 function! s:get_capture_winnr()
     for nr in range(1, winnr('$'))
