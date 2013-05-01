@@ -77,6 +77,7 @@ function! s:cmd_capture(q_args, createbuf)
         try
             call s:create_capture_buffer(q_args)
         catch
+            call s:error("capture: could not create capture buffer: ".v:exception)
             return
         endtry
         " Set command output.
