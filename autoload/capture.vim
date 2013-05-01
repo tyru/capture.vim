@@ -118,7 +118,7 @@ function! s:name_first_bufname(q_args)
     " Generate a unique buffer name.
     let bufname = s:generate_unique_bufname(q_args)
     let b:capture_bufnamenr = bufname.nr
-    silent file `=bufname.bufname`
+    call s:set_bufname(bufname.bufname)
 endfunction
 
 function! s:name_append_bufname(commands)
@@ -133,7 +133,7 @@ function! s:name_append_bufname(commands)
     " Generate a unique buffer name.
     let bufname = s:generate_unique_bufname(cmdlist)
     let b:capture_bufnamenr = bufname.nr
-    silent file `=bufname.bufname`
+    call s:set_bufname(bufname.bufname)
 endfunction
 
 function! s:generate_unique_bufname(string)
@@ -144,6 +144,12 @@ function! s:generate_unique_bufname(string)
         let bufname = '[Capture #'.nr.': "'.a:string.'"]'
     endwhile
     return {'nr': nr, 'bufname': bufname}
+endfunction
+
+function! s:set_bufname(bufname)
+    " Avoid |backtick-expansion|.
+    let bufnr = bufnr(a:bufname, 1)
+    execute bufnr 'buffer'
 endfunction
 
 function! s:error(msg)
