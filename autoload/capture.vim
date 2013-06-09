@@ -59,19 +59,21 @@ function! s:cmd_capture(q_args, createbuf)
 
     let capture_winnr = s:get_capture_winnr()
     if !a:createbuf && capture_winnr ># 0
-        setlocal noreadonly
         " Jump to existing capture window.
         execute capture_winnr 'wincmd w'
         " Format existing buffer.
         if len(b:capture_commands) is 1
             " NOTE: ':put' doesn't ignore comment string ("),
             " so don't use it in expression!
+            setlocal noreadonly
             1put! =b:capture_commands[0].':'
+            setlocal readonly
             " Rename buffer name.
             call s:name_append_bufname(b:capture_commands + [q_args])
         endif
         " Append new output.
         let lines = ["", q_args.":"] + split(output, '\n')
+        setlocal noreadonly
         call setline(line('$') + 1, lines)
         setlocal readonly
     else
