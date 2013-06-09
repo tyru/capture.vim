@@ -152,8 +152,13 @@ endfunction
 
 function! s:set_bufname(bufname)
     " Avoid |backtick-expansion|.
-    let bufnr = bufnr(a:bufname, 1)
-    execute bufnr 'buffer'
+    let bufnr = bufnr(a:bufname)
+    if bufnr == -1
+        enew
+        file `=substitute(a:bufname, '"', "'", 'g')`
+    else
+        execute bufnr 'buffer'
+    endif
 endfunction
 
 function! s:error(msg)
