@@ -138,7 +138,7 @@ endfunction
 
 function! s:generate_unique_bufname(string)
     let nr = get(b:, 'capture_bufnamenr', 0)
-    let bufname = '[Capture #'.nr.': "'.a:string.'"]'
+    let bufname = '[Capture #'.nr.' "'.a:string.'"]'
     while bufexists(bufname)
         let nr += 1
         let bufname = '[Capture #'.nr.': "'.a:string.'"]'
