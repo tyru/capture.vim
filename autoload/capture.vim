@@ -81,7 +81,9 @@ function! s:cmd_capture(q_args, createbuf)
             return
         endtry
         " Set command output.
+        setlocal noreadonly
         call setline(1, split(output, '\n'))
+        setlocal readonly
     endif
     " Save executed commands.
     if exists('b:capture_commands')
