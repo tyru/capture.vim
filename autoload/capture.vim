@@ -155,6 +155,7 @@ function! s:set_bufname(bufname)
     let bufnr = bufnr(a:bufname)
     if bufnr == -1
         enew
+        " NOTE: Can not use the (") for ':file'
         file `=substitute(a:bufname, '"', "'", 'g')`
     else
         execute bufnr 'buffer'
