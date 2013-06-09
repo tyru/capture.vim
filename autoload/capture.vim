@@ -59,6 +59,7 @@ function! s:cmd_capture(q_args, createbuf)
 
     let capture_winnr = s:get_capture_winnr()
     if !a:createbuf && capture_winnr ># 0
+        setlocal noreadonly
         " Jump to existing capture window.
         execute capture_winnr 'wincmd w'
         " Format existing buffer.
@@ -72,6 +73,7 @@ function! s:cmd_capture(q_args, createbuf)
         " Append new output.
         let lines = ["", q_args.":"] + split(output, '\n')
         call setline(line('$') + 1, lines)
+        setlocal readonly
     else
         " Create new capture buffer & window.
         try
