@@ -31,8 +31,8 @@ INTERFACE				*capture-interface* {{{
 VARIABLES					*capture-variables* {{{
 
 g:capture_open_command		*g:capture_open_command*
-						(Default: "belowright split")
-	Ex command to open a new window.
+						(Default: "belowright new")
+	Ex command to open a new buffer.
 
 }}}
 ------------------------------------------------------------------------------

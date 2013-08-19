@@ -8,7 +8,7 @@ set cpo&vim
 
 
 let s:is_mswin = has('win16') || has('win95') || has('win32') || has('win64')
-let g:capture_open_command = get(g:, 'capture_open_command', 'belowright split')
+let g:capture_open_command = get(g:, 'capture_open_command', 'belowright new')
 
 let s:running = 0
 
