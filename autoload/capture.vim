@@ -147,14 +147,10 @@ function! s:generate_unique_bufname(string)
 endfunction
 
 function! s:set_bufname(bufname)
-    " Avoid |backtick-expansion|.
     let bufnr = bufnr(a:bufname)
-    if bufnr == -1
-        enew
-        " NOTE: Can not use the (") for ':file'
-        file `=substitute(a:bufname, '"', "'", 'g')`
-    else
-        execute bufnr 'buffer'
+    if bufnr(a:bufname) is bufnr('%')
+        " NOTE: Can not use double-quote for ':file' arguments.
+        silent file `=substitute(a:bufname, '"', "'", 'g')`
     endif
 endfunction
 
