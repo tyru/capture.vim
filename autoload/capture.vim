@@ -55,6 +55,12 @@ function! s:cmd_capture(q_args, createbuf)
             redir END
         endtry
         let output = substitute(output, '^\n\+', '', '')
+        " Get rid of eol character.
+        let eol_char = matchstr(&listchars, 'eol:\zs.\ze')
+        if eol_char !=# ''
+            let eol_char = escape(eol_char, '\')
+            let output = substitute(output, '\V' . eol_char . '\v\ze[\r\n]+', '', '')
+        endif
     endif
 
     let capture_winnr = s:get_capture_winnr()
