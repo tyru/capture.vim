@@ -1,4 +1,4 @@
-*capture.txt* *capture* Show Ex command output in buffer
+*capture.txt* Show Ex command output in buffer
 
 Author:
   tyru <tyru.exe@gmail.com>
