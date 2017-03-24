@@ -29,40 +29,7 @@ function! s:cmd_capture(q_args, createbuf) abort
   let q_args = a:q_args
   let q_args = substitute(q_args, '^[\t :]+', '', '')
   let q_args = substitute(q_args, '\s+$', '', '')
-
-  if q_args !=# '' && q_args[0] ==# '!'
-    let args   = substitute(q_args, '^[ :]*!', '', '')
-    let output = system(args)
-  else
-    let throwpoint = 0
-    try
-      let throwpoint = 1
-      redir => output
-      let throwpoint = 2
-      silent execute q_args
-    catch /^capture: nested$/
-      call s:error(':Capture cannot be nested due to Vim :redir limitation.')
-      return
-    catch
-      if throwpoint is 1
-        call s:error('capture: nested :redir cannot work')
-        redir END
-      else " if throwpoint is 2
-        call s:error('capture: '''.q_args.''' caused an error: '.v:exception)
-      endif
-      return
-    finally
-      redir END
-    endtry
-    let output = substitute(output, '^\n\+', '', '')
-    " Get rid of eol character.
-    let eol_char = matchstr(&listchars, 'eol:\zs.\ze')
-    if eol_char !=# ''
-      let eol_char = escape(eol_char, '\')
-      let output = substitute(output, '\V' . eol_char . '\v\ze[\r\n]+', '', '')
-    endif
-  endif
-
+  let output = s:get_output(q_args)
   let capture_winnr = s:get_capture_winnr()
   if !a:createbuf && capture_winnr ># 0
     " Jump to existing capture window.
@@ -94,6 +61,45 @@ function! s:cmd_capture(q_args, createbuf) abort
     call add(b:capture_commands, q_args)
   else
     let b:capture_commands = [q_args]
+  endif
+endfunction
+
+function! s:get_output(q_args) abort
+  let q_args = a:q_args
+  if q_args !=# '' && q_args[0] ==# '!'
+    let args = substitute(q_args, '^[ :]*!', '', '')
+    return system(args)
+  elseif has('*execute')
+    return execute(q_args)
+  else
+    let throwpoint = 0
+    try
+      let throwpoint = 1
+      redir => output
+      let throwpoint = 2
+      silent execute q_args
+    catch /^capture: nested$/
+      call s:error(':Capture cannot be nested due to Vim :redir limitation.')
+      return
+    catch
+      if throwpoint is 1
+        call s:error('capture: nested :redir cannot work')
+        redir END
+      else " if throwpoint is 2
+        call s:error('capture: '''.q_args.''' caused an error: '.v:exception)
+      endif
+      return
+    finally
+      redir END
+    endtry
+    let output = substitute(output, '^\n\+', '', '')
+    " Get rid of eol character.
+    let eol_char = matchstr(&listchars, 'eol:\zs.\ze')
+    if eol_char !=# ''
+      let eol_char = escape(eol_char, '\')
+      let output = substitute(output, '\V' . eol_char . '\v\ze[\r\n]+', '', '')
+    endif
+    return output
   endif
 endfunction
 
