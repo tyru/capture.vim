@@ -68,7 +68,7 @@ function! s:get_output(q_args) abort
   let q_args = a:q_args
   if q_args !=# '' && q_args[0] ==# '!'
     let args = substitute(q_args, '^[ :]*!', '', '')
-    return system(args)
+    return iconv(system(args), 'char', &encoding)
   elseif has('*execute')
     return execute(q_args)
   else
