@@ -12,7 +12,7 @@ let g:capture_open_command = get(g:, 'capture_open_command', 'belowright new')
 
 let s:running = 0
 
-function! capture#__cmd_capture_stub__(...)
+function! capture#__cmd_capture_stub__(...) abort
     if s:running
         throw 'capture: nested'
     endif
@@ -24,7 +24,7 @@ function! capture#__cmd_capture_stub__(...)
     endtry
 endfunction
 
-function! s:cmd_capture(q_args, createbuf)
+function! s:cmd_capture(q_args, createbuf) abort
     " Get rid of cosmetic characters.
     let q_args = a:q_args
     let q_args = substitute(q_args, '^[\t :]+', '', '')
@@ -48,7 +48,7 @@ function! s:cmd_capture(q_args, createbuf)
                 call s:error('capture: nested :redir cannot work')
                 redir END
             else " if throwpoint is 2
-                call s:error("capture: '".q_args."' caused an error: ".v:exception)
+                call s:error('capture: '''.q_args.''' caused an error: '.v:exception)
             endif
             return
         finally
@@ -76,14 +76,14 @@ function! s:cmd_capture(q_args, createbuf)
             call s:name_append_bufname(b:capture_commands + [q_args])
         endif
         " Append new output.
-        let lines = ["", q_args.":"] + split(output, '\n')
+        let lines = ['', q_args.':'] + split(output, '\n')
         call setline(line('$') + 1, lines)
     else
         " Create new capture buffer & window.
         try
             call s:create_capture_buffer(q_args)
         catch
-            call s:error("capture: could not create capture buffer: ".v:exception)
+            call s:error('capture: could not create capture buffer: '.v:exception)
             return
         endtry
         " Set command output.
@@ -97,7 +97,7 @@ function! s:cmd_capture(q_args, createbuf)
     endif
 endfunction
 
-function! s:get_capture_winnr()
+function! s:get_capture_winnr() abort
     " Current window has higher priority
     " than other windows.
     for nr in [winnr()] + range(1, winnr('$'))
@@ -108,14 +108,14 @@ function! s:get_capture_winnr()
     return -1
 endfunction
 
-function! s:create_capture_buffer(q_args)
+function! s:create_capture_buffer(q_args) abort
     silent execute g:capture_open_command
     call s:name_first_bufname(a:q_args)
     setlocal buftype=nofile bufhidden=unload noswapfile nobuflisted
     setfiletype capture
 endfunction
 
-function! s:name_first_bufname(q_args)
+function! s:name_first_bufname(q_args) abort
     " Get rid of invalid characters of buffer name on MS Windows.
     let q_args = a:q_args
     if s:is_mswin
@@ -127,7 +127,7 @@ function! s:name_first_bufname(q_args)
     call s:set_bufname(bufname.bufname)
 endfunction
 
-function! s:name_append_bufname(commands)
+function! s:name_append_bufname(commands) abort
     let firstcmd = '^[a-zA-Z][a-zA-Z0-9_]\+\ze'
     let cmdlist = ''
     for cmd in a:commands[:1]
@@ -142,7 +142,7 @@ function! s:name_append_bufname(commands)
     call s:set_bufname(bufname.bufname)
 endfunction
 
-function! s:generate_unique_bufname(string)
+function! s:generate_unique_bufname(string) abort
     let nr = get(b:, 'capture_bufnamenr', 0)
     let bufname = '[Capture #'.nr.' "'.a:string.'"]'
     while bufexists(bufname)
@@ -152,7 +152,7 @@ function! s:generate_unique_bufname(string)
     return {'nr': nr, 'bufname': bufname}
 endfunction
 
-function! s:set_bufname(bufname)
+function! s:set_bufname(bufname) abort
     let bufnr = bufnr(a:bufname)
     if bufnr(a:bufname) is bufnr('%')
         " NOTE: Can not use double-quote for ':file' arguments.
@@ -160,7 +160,7 @@ function! s:set_bufname(bufname)
     endif
 endfunction
 
-function! s:error(msg)
+function! s:error(msg) abort
     try
         echohl ErrorMsg
         echomsg a:msg
