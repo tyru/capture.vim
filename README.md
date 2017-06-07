@@ -4,10 +4,16 @@ Show Ex command output in a buffer
 
 # Example
 
-* Write all defined mappings to a buffer (you can search them).
+* Show all defined mappings in a buffer (you can search them).
 
 ```viml
 :Capture map | map! | lmap
+```
+
+* Show echoed messages again in a buffer.
+
+```viml
+:Capture mes
 ```
 
 * Show installed scripts in a buffer.
