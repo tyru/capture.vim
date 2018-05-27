@@ -27,3 +27,9 @@ Show Ex command output in a buffer
 ```viml
 :Capture !ls
 ```
+
+* Show currently defined digraphs in a buffer.
+
+```viml
+:Capture digraphs
+```
