@@ -31,32 +31,7 @@ function! s:cmd_capture(q_args, createbuf) abort
     let q_args = substitute(q_args, '^[\t :]+', '', '')
     let q_args = substitute(q_args, '\s+$', '', '')
     let output = s:get_output(q_args)
-    let capture_winnr = s:get_capture_winnr()
-    if !a:createbuf && capture_winnr ># 0
-      " Jump to existing capture window.
-      execute capture_winnr 'wincmd w'
-      " Format existing buffer.
-      if len(b:capture_commands) is 1
-        " NOTE: ':put' doesn't ignore comment string ("),
-        " so don't use it in expression!
-        1put! =b:capture_commands[0].':'
-        " Rename buffer name.
-        call s:name_append_bufname(b:capture_commands + [q_args])
-      endif
-      " Append new output.
-      let lines = ['', q_args.':'] + split(output, '\n')
-      call setline(line('$') + 1, lines)
-    else
-      " Create new capture buffer & window.
-      try
-        call s:create_capture_buffer(q_args)
-      catch
-        call s:error('capture: could not create capture buffer: '.v:exception)
-        return
-      endtry
-      " Set command output.
-      call setline(1, split(output, '\n'))
-    endif
+    call s:write_buffer(output, q_args, a:createbuf)
     " Save executed commands.
     if exists('b:capture_commands')
       call add(b:capture_commands, q_args)
@@ -102,6 +77,35 @@ function! s:get_output(q_args) abort
       let output = substitute(output, '\V' . eol_char . '\v\ze[\r\n]+', '', '')
     endif
     return output
+  endif
+endfunction
+
+
+function! s:write_buffer(output, q_args, createbuf) abort
+  let capture_winnr = s:get_capture_winnr()
+  if !a:createbuf && capture_winnr ># 0
+    " Jump to existing capture window.
+    execute capture_winnr 'wincmd w'
+    " Format existing buffer.
+    if len(b:capture_commands) is 1
+      " NOTE: ':put' doesn't ignore comment string ("),
+      " so don't use it in expression!
+      1put! =b:capture_commands[0].':'
+      " Rename buffer name.
+      call s:name_append_bufname(b:capture_commands + [a:q_args])
+    endif
+    " Append new output.
+    let lines = ['', a:q_args.':'] + split(a:output, '\n')
+    call setline(line('$') + 1, lines)
+  else
+    " Create new capture buffer & window.
+    try
+      call s:create_capture_buffer(a:q_args)
+    catch
+      throw 'capture: could not create capture buffer: ' . v:exception
+    endtry
+    " Set command output.
+    call setline(1, split(a:output, '\n'))
   endif
 endfunction
 
