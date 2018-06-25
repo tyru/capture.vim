@@ -130,7 +130,8 @@ function! s:name_first_bufname(q_args) abort
   " Generate a unique buffer name.
   let bufname = s:generate_unique_bufname(q_args)
   let b:capture_bufnamenr = bufname.nr
-  call s:set_bufname(bufname.bufname)
+  " NOTE: Can not use double-quote for ':file' arguments.
+  silent file `=substitute(bufname.bufname, '"', "'", 'g')`
 endfunction
 
 function! s:name_append_bufname(commands) abort
@@ -145,7 +146,8 @@ function! s:name_append_bufname(commands) abort
   " Generate a unique buffer name.
   let bufname = s:generate_unique_bufname(cmdlist)
   let b:capture_bufnamenr = bufname.nr
-  call s:set_bufname(bufname.bufname)
+  " NOTE: Can not use double-quote for ':file' arguments.
+  silent file `=substitute(bufname.bufname, '"', "'", 'g')`
 endfunction
 
 function! s:generate_unique_bufname(string) abort
@@ -156,14 +158,6 @@ function! s:generate_unique_bufname(string) abort
     let bufname = '[Capture #'.nr.': "'.a:string.'"]'
   endwhile
   return {'nr': nr, 'bufname': bufname}
-endfunction
-
-function! s:set_bufname(bufname) abort
-  let bufnr = bufnr(a:bufname)
-  if bufnr(a:bufname) is bufnr('%')
-    " NOTE: Can not use double-quote for ':file' arguments.
-    silent file `=substitute(a:bufname, '"', "'", 'g')`
-  endif
 endfunction
 
 function! s:error(msg) abort
