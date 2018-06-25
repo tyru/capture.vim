@@ -99,8 +99,6 @@ function! s:write_buffer_appendwin(output, q_args, capture_winnr) abort
   execute a:capture_winnr 'wincmd w'
   " Format existing buffer.
   if len(b:capture_commands) is 1
-    " NOTE: ':put' doesn't ignore comment string ("),
-    " so don't use it in expression!
     1put! =b:capture_commands[0].':'
     " Rename buffer name.
     call s:name_append_bufname(b:capture_commands + [a:q_args])
