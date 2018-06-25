@@ -25,43 +25,47 @@ function! capture#__cmd_capture_stub__(...) abort
 endfunction
 
 function! s:cmd_capture(q_args, createbuf) abort
-  " Get rid of cosmetic characters.
-  let q_args = a:q_args
-  let q_args = substitute(q_args, '^[\t :]+', '', '')
-  let q_args = substitute(q_args, '\s+$', '', '')
-  let output = s:get_output(q_args)
-  let capture_winnr = s:get_capture_winnr()
-  if !a:createbuf && capture_winnr ># 0
-    " Jump to existing capture window.
-    execute capture_winnr 'wincmd w'
-    " Format existing buffer.
-    if len(b:capture_commands) is 1
-      " NOTE: ':put' doesn't ignore comment string ("),
-      " so don't use it in expression!
-      1put! =b:capture_commands[0].':'
-      " Rename buffer name.
-      call s:name_append_bufname(b:capture_commands + [q_args])
+  try
+    " Get rid of cosmetic characters.
+    let q_args = a:q_args
+    let q_args = substitute(q_args, '^[\t :]+', '', '')
+    let q_args = substitute(q_args, '\s+$', '', '')
+    let output = s:get_output(q_args)
+    let capture_winnr = s:get_capture_winnr()
+    if !a:createbuf && capture_winnr ># 0
+      " Jump to existing capture window.
+      execute capture_winnr 'wincmd w'
+      " Format existing buffer.
+      if len(b:capture_commands) is 1
+        " NOTE: ':put' doesn't ignore comment string ("),
+        " so don't use it in expression!
+        1put! =b:capture_commands[0].':'
+        " Rename buffer name.
+        call s:name_append_bufname(b:capture_commands + [q_args])
+      endif
+      " Append new output.
+      let lines = ['', q_args.':'] + split(output, '\n')
+      call setline(line('$') + 1, lines)
+    else
+      " Create new capture buffer & window.
+      try
+        call s:create_capture_buffer(q_args)
+      catch
+        call s:error('capture: could not create capture buffer: '.v:exception)
+        return
+      endtry
+      " Set command output.
+      call setline(1, split(output, '\n'))
     endif
-    " Append new output.
-    let lines = ['', q_args.':'] + split(output, '\n')
-    call setline(line('$') + 1, lines)
-  else
-    " Create new capture buffer & window.
-    try
-      call s:create_capture_buffer(q_args)
-    catch
-      call s:error('capture: could not create capture buffer: '.v:exception)
-      return
-    endtry
-    " Set command output.
-    call setline(1, split(output, '\n'))
-  endif
-  " Save executed commands.
-  if exists('b:capture_commands')
-    call add(b:capture_commands, q_args)
-  else
-    let b:capture_commands = [q_args]
-  endif
+    " Save executed commands.
+    if exists('b:capture_commands')
+      call add(b:capture_commands, q_args)
+    else
+      let b:capture_commands = [q_args]
+    endif
+  catch
+    call s:error(v:exception)
+  endtry
 endfunction
 
 function! s:get_output(q_args) abort
@@ -79,16 +83,14 @@ function! s:get_output(q_args) abort
       let throwpoint = 2
       silent execute q_args
     catch /^capture: nested$/
-      call s:error(':Capture cannot be nested due to Vim :redir limitation.')
-      return
+      throw ':Capture cannot be nested due to Vim :redir limitation'
     catch
       if throwpoint is 1
-        call s:error('capture: nested :redir cannot work')
         redir END
+        throw 'capture: nested :redir cannot work'
       else " if throwpoint is 2
-        call s:error('capture: '''.q_args.''' caused an error: '.v:exception)
+        throw 'capture: ''' . q_args . ''' caused an error: ' . v:exception
       endif
-      return
     finally
       redir END
     endtry
