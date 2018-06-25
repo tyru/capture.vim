@@ -9,6 +9,7 @@ set cpo&vim
 
 let s:is_mswin = has('win16') || has('win95') || has('win32') || has('win64')
 let g:capture_open_command = get(g:, 'capture_open_command', 'belowright new')
+let g:capture_override_buffer = get(g:, 'capture_override_buffer', 'appendwin')
 
 let s:running = 0
 
@@ -84,17 +85,26 @@ endfunction
 
 
 function! s:write_buffer(output, q_args, createbuf) abort
+  if a:createbuf
+    let override_buffer = 'newbufwin'
+  else
+    let override_buffer = g:capture_override_buffer
+  endif
   let capture_winnr = s:get_capture_winnr()
-  let override_buffer = s:get_override_buffer(a:createbuf, capture_winnr)
   if override_buffer ==# 'appendwin'
     call s:write_buffer_appendwin(a:output, a:q_args, capture_winnr)
-  else    " override_buffer ==# 'newbufwin'
+  elseif override_buffer ==# 'replace'
+    call s:write_buffer_replace(a:output, a:q_args, capture_winnr)
+  else " override_buffer ==# 'newbufwin'
     call s:write_buffer_newbufwin(a:output, a:q_args)
   endif
 endfunction
 
 " Append output to existing capture window's buffer.
 function! s:write_buffer_appendwin(output, q_args, capture_winnr) abort
+  if a:capture_winnr <=# 0
+    return s:write_buffer_newbufwin(a:output, a:q_args)
+  endif
   " Jump to existing capture window.
   execute a:capture_winnr 'wincmd w'
   " Format existing buffer.
@@ -108,6 +118,21 @@ function! s:write_buffer_appendwin(output, q_args, capture_winnr) abort
   call setline(line('$') + 1, lines)
 endfunction
 
+" Replace existing capture window's buffer content with output.
+" if no existing capture window, insert output to new capture buffer & window.
+function! s:write_buffer_replace(output, q_args, capture_winnr) abort
+  if a:capture_winnr <=# 0
+    return s:write_buffer_newbufwin(a:output, a:q_args)
+  endif
+  " Jump to existing capture window.
+  execute a:capture_winnr 'wincmd w'
+  " Rename buffer name.
+  call s:name_first_bufname(a:q_args)
+  " Replace with new output.
+  %delete _
+  call setline(1, split(a:output, '\n'))
+endfunction
+
 " Insert output to new capture buffer & window.
 function! s:write_buffer_newbufwin(output, q_args) abort
   try
@@ -117,14 +142,6 @@ function! s:write_buffer_newbufwin(output, q_args) abort
   endtry
   " Set command output.
   call setline(1, split(a:output, '\n'))
-endfunction
-
-function! s:get_override_buffer(createbuf, capture_winnr) abort
-  if !a:createbuf && a:capture_winnr ># 0
-    return 'appendwin'
-  else
-    return 'newbufwin'
-  endif
 endfunction
 
 function! s:get_capture_winnr() abort

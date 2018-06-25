@@ -34,6 +34,20 @@ g:capture_open_command		*g:capture_open_command*
 						(Default: "belowright new")
 	Ex command to open a new buffer.
 
+g:capture_override_buffer		*g:capture_override_buffer*
+						(Default: "appendwin")
+	This variable controls how `:Capture` modifies the capture's buffer content
+	when the capture's buffer exists.
+	This variable does not affect to `:Capture!` (with bang).
+	It always creates a new buffer & window.
+
+	value			meaning ~
+	"appendwin"		Appends the result to the buffer content if the capture
+					buffer's window is visible. otherwise same as "newbufwin"
+	"replace"		Replaces the result to the buffer content if the capture
+					buffer's window is visible. otherwise same as "newbufwin"
+	"newbufwin"		Same as `:Capture!`, creates a new buffer & window
+
 }}}
 ------------------------------------------------------------------------------
 COMMANDS					*capture-commands* {{{
