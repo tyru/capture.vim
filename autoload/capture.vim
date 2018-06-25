@@ -176,16 +176,15 @@ function! s:name_first_bufname(q_args) abort
 endfunction
 
 function! s:name_append_bufname(commands) abort
+  " assert len(a:commands) is 2
   let firstcmd = '^[a-zA-Z][a-zA-Z0-9_]\+\ze'
-  let cmdlist = ''
+  let cmdlist = []
   for cmd in a:commands[:1]
-    let cmdlist .=
-    \   (cmdlist ==# '' ? '' : ',') .
-    \   matchstr(cmd, firstcmd)
+    let cmdlist += [matchstr(cmd, firstcmd)]
   endfor
-  let cmdlist .= ',...'
+  let cmdlist += ['...']
   " Generate a unique buffer name.
-  let bufname = s:generate_unique_bufname(cmdlist)
+  let bufname = s:generate_unique_bufname(join(cmdlist, ','))
   let b:capture_bufnamenr = bufname.nr
   " NOTE: Can not use double-quote for ':file' arguments.
   silent file `=substitute(bufname.bufname, '"', "'", 'g')`
