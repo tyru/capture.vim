@@ -85,29 +85,47 @@ endfunction
 
 function! s:write_buffer(output, q_args, createbuf) abort
   let capture_winnr = s:get_capture_winnr()
-  if !a:createbuf && capture_winnr ># 0
-    " Jump to existing capture window.
-    execute capture_winnr 'wincmd w'
-    " Format existing buffer.
-    if len(b:capture_commands) is 1
-      " NOTE: ':put' doesn't ignore comment string ("),
-      " so don't use it in expression!
-      1put! =b:capture_commands[0].':'
-      " Rename buffer name.
-      call s:name_append_bufname(b:capture_commands + [a:q_args])
-    endif
-    " Append new output.
-    let lines = ['', a:q_args.':'] + split(a:output, '\n')
-    call setline(line('$') + 1, lines)
+  let override_buffer = s:get_override_buffer(a:createbuf, capture_winnr)
+  if override_buffer ==# 'appendwin'
+    call s:write_buffer_appendwin(a:output, a:q_args, capture_winnr)
+  else    " override_buffer ==# 'newbufwin'
+    call s:write_buffer_newbufwin(a:output, a:q_args)
+  endif
+endfunction
+
+" Append output to existing capture window's buffer.
+function! s:write_buffer_appendwin(output, q_args, capture_winnr) abort
+  " Jump to existing capture window.
+  execute a:capture_winnr 'wincmd w'
+  " Format existing buffer.
+  if len(b:capture_commands) is 1
+    " NOTE: ':put' doesn't ignore comment string ("),
+    " so don't use it in expression!
+    1put! =b:capture_commands[0].':'
+    " Rename buffer name.
+    call s:name_append_bufname(b:capture_commands + [a:q_args])
+  endif
+  " Append new output.
+  let lines = ['', a:q_args.':'] + split(a:output, '\n')
+  call setline(line('$') + 1, lines)
+endfunction
+
+" Insert output to new capture buffer & window.
+function! s:write_buffer_newbufwin(output, q_args) abort
+  try
+    call s:create_capture_buffer(a:q_args)
+  catch
+    throw 'capture: could not create capture buffer: ' . v:exception
+  endtry
+  " Set command output.
+  call setline(1, split(a:output, '\n'))
+endfunction
+
+function! s:get_override_buffer(createbuf, capture_winnr) abort
+  if !a:createbuf && a:capture_winnr ># 0
+    return 'appendwin'
   else
-    " Create new capture buffer & window.
-    try
-      call s:create_capture_buffer(a:q_args)
-    catch
-      throw 'capture: could not create capture buffer: ' . v:exception
-    endtry
-    " Set command output.
-    call setline(1, split(a:output, '\n'))
+    return 'newbufwin'
   endif
 endfunction
 
