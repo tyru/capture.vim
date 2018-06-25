@@ -89,7 +89,7 @@ function! s:get_output(q_args) abort
         redir END
         throw 'capture: nested :redir cannot work'
       else " if throwpoint is 2
-        throw 'capture: ''' . q_args . ''' caused an error: ' . v:exception
+        throw 'capture: ''' . q_args . ''' => ' . v:exception
       endif
     finally
       redir END
