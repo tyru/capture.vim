@@ -166,7 +166,7 @@ function! s:name_first_bufname(q_args) abort
   " Get rid of invalid characters of buffer name on MS Windows.
   let q_args = a:q_args
   if s:is_mswin
-    let q_args = substitute(q_args, '[?*\\]', '_', 'g')
+    let q_args = substitute(q_args, '[?*\\>]', '_', 'g')
   endif
   " Generate a unique buffer name.
   let bufname = s:generate_unique_bufname(q_args)
